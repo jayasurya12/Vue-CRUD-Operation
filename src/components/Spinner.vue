@@ -10,7 +10,7 @@
 
 <script>
 export default {
-    name:"Spinner"
+    name:"App"
 }
 </script>
 

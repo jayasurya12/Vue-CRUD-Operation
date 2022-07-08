@@ -8,21 +8,30 @@
       </div>
     </div>
   </div>
-  <div class="container">
+  <div v-if="loading">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <Spinner/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container" v-if="!loading && isDone()">
     <div class="row align-items-center">
       <div class="col-md-4">
         <img 
-        src="https://icons-for-free.com/download-icon-business+costume+male+man+office+user+icon-1320196264882354682_512.png" 
+        :src="contact.photo_url" 
         class="contact-img-big" alt="">
       </div>
       <div class="col-md-6">
         <ul class="list-group">
-          <li class="list-group-item">Name : <span class="fw-bold">Surya</span></li>
-          <li class="list-group-item">Email : <span class="fw-bold">jai12vj@gmail.com</span></li>
-          <li class="list-group-item">Mobile : <span class="fw-bold">9080020109</span></li>
-          <li class="list-group-item">Company : <span class="fw-bold">IORTA</span></li>
-          <li class="list-group-item">Title : <span class="fw-bold">Software Developer</span></li>
-          <li class="list-group-item">Group : <span class="fw-bold">IORTA Group</span></li>
+          <li class="list-group-item">Name : <span class="fw-bold">{{contact.name}}</span></li>
+          <li class="list-group-item">Email : <span class="fw-bold">{{contact.email}}</span></li>
+          <li class="list-group-item">Mobile : <span class="fw-bold">{{contact.mobile}}</span></li>
+          <li class="list-group-item">Company : <span class="fw-bold">{{contact.company}}</span></li>
+          <li class="list-group-item">Title : <span class="fw-bold">{{contact.title}}</span></li>
+          <li class="list-group-item">Group : <span class="fw-bold">{{group.name}}</span></li>
         </ul>
       </div>
     </div>
@@ -32,13 +41,42 @@
     </div>
   </div>
   </div>
-  
   </div>
 </template>
 
 <script>
+import { ContactService } from '@/services/ContactService'
+import Spinner from '@/components/Spinner'
 export default {
-    name:"ViewContact"
+    name:"ViewContact",
+    components:{Spinner},
+    data:function(){
+      return{
+        contactId:this.$route.params.contactId,
+        loading:false,
+        contact:'',
+        errorMessage:null,
+        group:{}
+      }
+    },
+    created:async function(){
+      try {
+        this.loading=true;
+        let {data}=await ContactService.getContact(this.contactId);
+        let res=await ContactService.getGroup(data);
+        this.contact=data;
+        this.group=res.data;
+        this.loading=false;
+      } catch (error) {
+        this.errorMessage=error.message;
+        this.loading=false;
+      }
+    },
+    methods:{
+       isDone(){
+        return Object.keys(this.contact).length > 0 &&  Object.keys(this.group).length > 0
+      }
+    }
 }
 </script>
 
